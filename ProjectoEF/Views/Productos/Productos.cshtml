@@ -1,0 +1,171 @@
+﻿@model ProjectoEF.Models.productos
+
+@{
+    ViewBag.Title = "Productos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{
+    if (ViewBag.msj != null)
+    {
+        switch (ViewBag.msj)
+        {
+            case "Guardado":
+                <script>alert("Guardado con exito!")</script>
+                break;
+            case "Modificado":
+                <script>alert("Modificado con exito!")</script>
+                break;
+
+            case "Eliminado":
+                <script>alert("Eliminado con exito!")</script>
+                break;
+
+        }
+
+    }
+}
+
+<script>
+
+    //cargar el formulario con datos seleccionados
+    function cargarDel(pro, nom, pre, exi, cdc) {
+        document.getElementById("txtProductId").value = pro;
+        document.getElementById("txtNombre").value = nom;
+        document.getElementById("txtPrecio").value = pre;
+        document.getElementById("txtExistencia").value = exi;
+        document.getElementById("txtCodCat").selectedIndex = cdc - 1;
+
+        $("#btnEliminar").show();
+        $("#btnModificar").hide();
+        $("#btnGuardar").hide();
+    }
+
+    //confirmar para eliminar
+    function confirmarDel() {
+        if (confirm("Desea eliminar el registro?")) {
+            document.getElementById("eliminacion").value = "si"
+        } else {
+            document.getElementById("eliminacion").value = "no"
+        }
+    }
+    //cargar el formulario con datos seleccionados
+    function cargarMod(pro, nom, pre, exi, cdc) {
+        document.getElementById("txtProductId").value = pro;
+        document.getElementById("txtNombre").value = nom;
+        document.getElementById("txtPrecio").value = pre;
+        document.getElementById("txtExistencia").value = exi;
+        document.getElementById("txtCodCat").selectedIndex = cdc - 1;
+
+        $("#btnEliminar").hide();
+        $("#btnModificar").show();
+        $("#btnGuardar").hide();
+    }
+
+    //confirmar para modificar
+    function confirmarMod() {
+        if (confirm("Desea modificar el registro?")) {
+            document.getElementById("modificacion").value = "si"
+        } else {
+            document.getElementById("modificacion").value = "no"
+        }
+    }
+
+    $(document).ready(function () {
+        $("#btnNuevo").on("Click", function () {
+            $("#btnEliminar").hide();
+            $("#btnModificar").hide();
+            $("#btnGuardar").show();
+        })
+    });
+
+
+</script>
+
+<h2>Productos</h2>
+
+<fieldset>
+    <legend>Opciones</legend>
+    <input type="button" name="btnNuevo" id="btnNuevo" class="btn btn-success" value="Agregar Producto" data-toggle="modal" data-target="#FormularioModal" />
+</fieldset>
+
+<div id="contenido">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ProductoID</th>
+                <th>Nombre</th>
+                <th>Precio</th>
+                <th>Existencia</th>
+                <th>codCat</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                foreach (ProjectoEF.Models.productos item in ViewBag.data)
+                {
+                    <tr>
+                        <td>@item.productId</td>
+                        <td>@item.nombre</td>
+                        <td>@item.precio</td>
+                        <td>@item.existencia</td>
+                        <td>@item.codcat</td>
+                        <td>
+                            <a class="btn btn-info btn-sm" href="" onclick="javascript:cargarMod('@item.productId','@item.nombre','@item.precio','@item.existencia','@item.codcat')" data-toggle="modal" data-target="#FormularioModal">Modificar</a>
+                            |
+                            <a class="btn btn-danger btn-sm" href="" onclick="javascript:cargarDel('@item.productId','@item.nombre','@item.precio','@item.existencia','@item.codcat')" data-toggle="modal" data-target="#FormularioModal">Eliminar</a>
+                        </td>
+                    </tr>
+                }
+            }
+
+        </tbody>
+    </table>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="FormularioModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="FormularioModal">Modal title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @using (Html.BeginForm("Productos", "Productos", FormMethod.Post, htmlAttributes: new { id = "form" }))
+                {
+                    @Html.LabelFor(x => x.productId, htmlAttributes: new { @class = "label label-info" })
+                    @Html.TextBoxFor(x => x.productId, htmlAttributes: new { @class = "form-control", id = "txtProductId" }) <br />
+
+                    @Html.LabelFor(x => x.nombre, htmlAttributes: new { @class = "label label-info" })
+                    @Html.TextBoxFor(x => x.nombre, htmlAttributes: new { @class = "form-control", id = "txtNombre" }) <br />
+
+                    @Html.LabelFor(x => x.precio, htmlAttributes: new { @class = "label label-info" })
+                    @Html.TextBoxFor(x => x.precio, htmlAttributes: new { @class = "form-control", id = "txtPrecio" }) <br />
+
+                    @Html.LabelFor(x => x.existencia, htmlAttributes: new { @class = "label label-info" })
+                    @Html.TextBoxFor(x => x.existencia, htmlAttributes: new { @class = "form-control", id = "txtExistencia" }) <br />
+
+                    @Html.LabelFor(x => x.codcat, htmlAttributes: new { @class = "label label-info" })
+                    @Html.DropDownListFor(x => x.codcat, (IEnumerable<SelectListItem>)ViewBag.combo, htmlAttributes: new { @class = "form-control", id = "txtCodCat" }) <br />
+
+                    <input type="hidden" name="eliminacion" id="eliminacion" value="" />
+                    <input type="hidden" name="modificacion" id="modificacion" value="" />
+
+                    <div class="modal-footer">
+                        <input type="submit" name="boton" value="Guardar" id="btnGuardar" class="btn btn-success" />
+                        <input type="submit" onclick="javascript: confirmarMod()" name="boton" value="Modificar" id="btnModificar" class="btn btn-info" />
+                        <input type="submit" onclick="javascript: confirmarDel()" name="boton" value="Eliminar" id="btnEliminar" class="btn btn-danger" />
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+
+
+                }
+            </div>
+        </div>
+    </div>
+</div>
